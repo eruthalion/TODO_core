@@ -14,8 +14,8 @@ namespace todo_gabor.Models
             [Key]
             public int Id { get; set; }
             public string Email { get; set; }
-            public string Password { get; set; }
-            public bool isOwner { get; set; }
+            public string Password { get; set; }         
+            public virtual ICollection<Task> OwnTasks { get; set; }
             public virtual ICollection<TaskUser> Tasks { get; set; }
 
         }
@@ -27,6 +27,7 @@ namespace todo_gabor.Models
             public string Name { get; set; }
             public DateTime CreateDate { get; set; }
             public DateTime NotifyTime { get; set; }
+            public virtual User Owner { get; set; }
             public virtual ICollection<TaskUser> Users { get; set; }
 
         }

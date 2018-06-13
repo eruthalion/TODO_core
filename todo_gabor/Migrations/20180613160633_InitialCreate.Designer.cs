@@ -10,7 +10,7 @@ using todo_gabor.Models;
 namespace todo_gabor.Migrations
 {
     [DbContext(typeof(Model.ModelContainer))]
-    [Migration("20180613095858_InitialCreate")]
+    [Migration("20180613160633_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,11 @@ namespace todo_gabor.Migrations
 
                     b.Property<DateTime>("NotifyTime");
 
+                    b.Property<int?>("OwnerId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Tasks");
                 });
@@ -61,11 +65,16 @@ namespace todo_gabor.Migrations
 
                     b.Property<string>("Password");
 
-                    b.Property<bool>("isOwner");
-
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("todo_gabor.Models.Model+Task", b =>
+                {
+                    b.HasOne("todo_gabor.Models.Model+User", "Owner")
+                        .WithMany("OwnTasks")
+                        .HasForeignKey("OwnerId");
                 });
 
             modelBuilder.Entity("todo_gabor.Models.Model+TaskUser", b =>

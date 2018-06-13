@@ -31,7 +31,11 @@ namespace todo_gabor.Migrations
 
                     b.Property<DateTime>("NotifyTime");
 
+                    b.Property<int?>("OwnerId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Tasks");
                 });
@@ -59,11 +63,16 @@ namespace todo_gabor.Migrations
 
                     b.Property<string>("Password");
 
-                    b.Property<bool>("isOwner");
-
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("todo_gabor.Models.Model+Task", b =>
+                {
+                    b.HasOne("todo_gabor.Models.Model+User", "Owner")
+                        .WithMany("OwnTasks")
+                        .HasForeignKey("OwnerId");
                 });
 
             modelBuilder.Entity("todo_gabor.Models.Model+TaskUser", b =>

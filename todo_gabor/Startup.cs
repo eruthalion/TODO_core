@@ -29,7 +29,7 @@ namespace todo_gabor
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var connection = @"Server=192.168.99.93;Database=TODO_Gabor3;user id=sa;password=asd123ASD;";
+            var connection = @"Server=DESKTOP-F6D00SH\SQLEXPRESS;Database=TODO_Gabor2;user id=sa;password=asd123ASD;";
             services.AddDbContext<Model.ModelContainer>(options => options.UseSqlServer(connection));
         }
 

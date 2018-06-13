@@ -49,16 +49,37 @@ namespace todo_gabor.Controllers
             return retval;
         }
 
+        class usr
+        {
+            public string Name { get; set; }
+        }
+
         [HttpPost]
         public void Post([FromBody] JObject value)
-        {
-            string taskOwner = value.GetValue("Users").ToString();
-            value.Remove("Users");           
+        {         
+            string taskOwner = value.GetValue("Owner").ToString();
+            List<string> users = value.GetValue("Users").ToObject<List<string>>();
+            value.Remove("Users");
+            value.Remove("Owner");
             Models.Model.Task task = value.ToObject<Models.Model.Task>();
             Management actMan = new Management(_model);
-            bool retval= actMan.SaveTask(task, taskOwner);
+            bool retval= actMan.SaveTask(task, taskOwner,users);
+        }
 
-
+        [HttpPut]
+        public void Put([FromBody] JObject value)
+        {
+            int taskId =int.Parse(value.GetValue("taskId").ToString());
+            int userId = int.Parse(value.GetValue("userId").ToString());
+            string taskOwner = value.GetValue("Owner").ToString();
+            List<string> users = value.GetValue("Users").ToObject<List<string>>();
+            value.Remove("Users");
+            value.Remove("Owner");
+            value.Remove("taskId");
+            value.Remove("userId");
+            Models.Model.Task task = value.ToObject<Models.Model.Task>();
+            Management actMan = new Management(_model);
+            bool retval = actMan.UpdateTask(taskId, userId,task,taskOwner,users);
         }
     }
 }
