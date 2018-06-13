@@ -30,7 +30,7 @@ namespace todo_gabor.Models
                 }
                 else
                 {
-                    tasks.Add(_model.Tasks.Include(t => t.Users).FirstOrDefault(z => z.Id == id));
+                    tasks.Add(_model.Tasks.Include(u => u.Users).ThenInclude(k => k.User).FirstOrDefault(z => z.Id == id));
                 }
             }
 
@@ -41,20 +41,13 @@ namespace todo_gabor.Models
         public bool SaveTask(Models.Model.Task newTask, string ownerEmail, List<string> users)
         {
             bool retval = true;
-            Model.User actuser = _model.Users.Where(z => z.Email == ownerEmail).FirstOrDefault();
-            if (actuser == null)
-            {
-                actuser=SaveUser(ownerEmail);
-              
-            }
-
+            Model.User actuser = GetUser(ownerEmail);
             List<Model.User> userList = _model.Users.Where(z => users.Contains(z.Email)).ToList();
-
             foreach(string x in users)
             {
                 if (_model.Users.Where(z => z.Email== x).FirstOrDefault()==null)
                 {
-                    userList.Add(SaveUser(x));
+                    userList.Add(GetUser(x));
                 }
             }
 
@@ -77,16 +70,19 @@ namespace todo_gabor.Models
             return retval;
         }
 
-        public Model.User SaveUser(string email, string password="asd123ASD")
+        public Model.User GetUser(string email, string password="asd123ASD")
         {
             Model.User retval = new Model.User();
             try
             {
-              
-                retval.Email = email;
-                retval.Password = password;
-                _model.Users.Add(retval);
-                _model.SaveChanges();
+                retval = _model.Users.Where(z => z.Email == email).FirstOrDefault();
+                if (retval == null)
+                {
+                    retval.Email = email;
+                    retval.Password = password;
+                    _model.Users.Add(retval);
+                    _model.SaveChanges();
+                }
             }
             catch
             {
@@ -102,15 +98,31 @@ namespace todo_gabor.Models
             Model.Task actTask = _model.Tasks.Where(t => t.Id == id).Include(u => u.Users).ThenInclude(k => k.User).FirstOrDefault();
             if (actuserId == actTask.Owner.Id)
             {
-
+                List<string> actUs = actTask.Users.Where(z => users.Contains(z.User.Email)).Select(u=>u.User.Email).ToList();
                 List<Model.TaskUser> actTaskUserToRemove = actTask.Users.Where(z => !users.Contains(z.User.Email)).ToList();
                 foreach (Model.TaskUser u in actTaskUserToRemove)
                 {
                     actTask.Users.Remove(u);
                 }
+                List<Model.User> usrToAdd = new List<Model.User>();
+                List<string> usersEmailsToAdd = new List<string>();
+                foreach(string v in users)
+                {
+                    if (!actUs.Contains(v))
+                    {
+                        usrToAdd.Add(GetUser(v));
+                    }
+                }
+                List<Model.TaskUser> taskUserList = actTask.Users.ToList();
+                foreach (Model.User y in usrToAdd)
+                {
+                    taskUserList.Add(new Model.TaskUser { Task = actTask, User = y });
+                }
                 actTask.Name = modTask.Name;
                 actTask.CreateDate = modTask.CreateDate;
                 actTask.NotifyTime = modTask.NotifyTime;
+                actTask.Users = taskUserList;
+                _model.SaveChanges();
             }
             else
             {
